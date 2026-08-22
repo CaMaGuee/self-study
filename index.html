@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>React & Next.js 8일 집중 커리큘럼</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Work+Sans:wght@300..700&display=swap" rel="stylesheet">
+<style>
+:root, [data-theme="light"] {
+  --color-bg: #f7f6f2; --color-surface: #f9f8f5; --color-surface-2: #fbfbf9;
+  --color-surface-offset: #f3f0ec; --color-surface-offset-2: #edeae5;
+  --color-divider: #dcd9d5; --color-border: #d4d1ca;
+  --color-text: #28251d; --color-text-muted: #7a7974; --color-text-faint: #bab9b4;
+  --color-text-inverse: #f9f8f4;
+  --color-primary: #01696f; --color-primary-hover: #0c4e54; --color-primary-highlight: #cedcd8;
+  --color-success: #437a22; --color-error: #a12c7b;
+  --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px oklch(0.2 0.01 80 / 0.06);
+  --shadow-md: 0 4px 12px oklch(0.2 0.01 80 / 0.08);
+  --shadow-lg: 0 12px 32px oklch(0.2 0.01 80 / 0.12);
+  --font-display: 'Space Mono', monospace;
+  --font-body: 'Work Sans', sans-serif;
+}
+[data-theme="dark"] {
+  --color-bg: #171614; --color-surface: #1c1b19; --color-surface-2: #201f1d;
+  --color-surface-offset: #1d1c1a; --color-surface-offset-2: #22211f;
+  --color-divider: #262523; --color-border: #393836;
+  --color-text: #cdccca; --color-text-muted: #797876; --color-text-faint: #5a5957;
+  --color-text-inverse: #2b2a28;
+  --color-primary: #4f98a3; --color-primary-hover: #227f8b; --color-primary-highlight: #313b3b;
+  --color-success: #6daa45; --color-error: #d163a7;
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.2);
+  --shadow-md: 0 4px 12px oklch(0 0 0 / 0.3);
+  --shadow-lg: 0 12px 32px oklch(0 0 0 / 0.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-text); line-height: 1.65; font-size: 16px; }
+h1,h2,h3,h4 { font-family: var(--font-display); line-height: 1.2; }
+.container { display: flex; max-width: 1280px; margin: 0 auto; }
+
+header.topbar {
+  position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 1.5rem; background: var(--color-surface); border-bottom: 1px solid var(--color-divider);
+}
+.logo { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; }
+.logo svg { color: var(--color-primary); }
+.topbar-right { display: flex; align-items: center; gap: 1rem; }
+#progressLabel { font-size: 0.85rem; color: var(--color-text-muted); font-family: var(--font-display); }
+.theme-btn { width: 36px; height: 36px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; color: var(--color-text); background: var(--color-surface-offset); }
+.theme-btn:hover { background: var(--color-surface-offset-2); }
+
+nav.sidebar { width: 220px; flex-shrink: 0; padding: 2rem 1rem; position: sticky; top: 60px; align-self: flex-start; height: calc(100vh - 60px); overflow-y: auto; }
+.nav-item { display: block; padding: 0.5rem 0.75rem; border-radius: var(--radius-md); color: var(--color-text-muted); font-size: 0.85rem; text-decoration: none; margin-bottom: 0.25rem; }
+.nav-item:hover { background: var(--color-surface-offset); color: var(--color-text); }
+.nav-item.active { background: var(--color-primary-highlight); color: var(--color-primary); font-weight: 600; }
+
+main { flex: 1; padding: 2rem 2rem 6rem; min-width: 0; }
+.hero { padding: 2rem 0 3rem; border-bottom: 1px solid var(--color-divider); margin-bottom: 2rem; }
+.hero h1 { font-size: clamp(1.75rem, 3vw, 2.5rem); margin-bottom: 0.75rem; }
+.hero p { color: var(--color-text-muted); max-width: 65ch; }
+
+.day-section { padding: 2rem 0; border-bottom: 1px solid var(--color-divider); }
+.day-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+.day-head-left { display: flex; align-items: baseline; gap: 0.75rem; }
+.day-num { font-family: var(--font-display); color: var(--color-primary); font-weight: 700; font-size: 0.9rem; }
+.day-title { font-size: 1.4rem; }
+.lab-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border-radius: var(--radius-full); background: var(--color-primary); color: white; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; white-space: nowrap; }
+.lab-btn svg { width: 16px; height: 16px; }
+.lab-btn:hover { background: var(--color-primary-hover); }
+.day-goal { color: var(--color-text-muted); max-width: 70ch; margin-bottom: 0.75rem; }
+.day-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.tag { font-size: 0.75rem; padding: 0.25rem 0.65rem; border-radius: var(--radius-full); background: var(--color-surface-offset); color: var(--color-text-muted); }
+
+.timeline { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+.block { display: flex; gap: 1rem; }
+.block-time { flex-shrink: 0; width: 110px; font-family: var(--font-display); font-size: 0.75rem; color: var(--color-text-faint); display: flex; flex-direction: column; }
+.block-time small { color: var(--color-text-faint); margin-top: 0.15rem; }
+.block-body { flex: 1; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1rem 1.25rem; }
+.block-type { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; padding: 0.15rem 0.5rem; border-radius: var(--radius-sm); display: inline-block; margin-bottom: 0.4rem; }
+.block-type.theory { background: var(--color-primary-highlight); color: var(--color-primary); }
+.block-type.practice { background: color-mix(in oklch, var(--color-success) 18%, var(--color-surface)); color: var(--color-success); }
+.block-type.project { background: color-mix(in oklch, var(--color-error) 15%, var(--color-surface)); color: var(--color-error); }
+.block-body h4 { font-size: 1rem; margin-bottom: 0.4rem; font-family: var(--font-body); font-weight: 700; }
+.block-body ul { padding-left: 1.1rem; color: var(--color-text-muted); font-size: 0.9rem; }
+.block-body li { margin-bottom: 0.2rem; }
+
+.checklist-card { background: var(--color-surface-offset); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; }
+.checklist-card h4 { font-size: 0.95rem; margin-bottom: 0.75rem; font-family: var(--font-body); font-weight: 700; }
+.check-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.3rem 0; font-size: 0.9rem; cursor: pointer; }
+.check-item input { width: 18px; height: 18px; accent-color: var(--color-primary); }
+.check-item.done span { text-decoration: line-through; color: var(--color-text-faint); }
+.day-divider { height: 1px; }
+footer { text-align: center; padding: 2rem; color: var(--color-text-faint); font-size: 0.8rem; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: oklch(0 0 0 / 0.5); display: none; align-items: center; justify-content: center; z-index: 200; padding: 1rem; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--color-surface); border-radius: var(--radius-xl); max-width: 780px; width: 100%; max-height: 88vh; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--color-divider); flex-shrink: 0; }
+.modal-header h3 { font-size: 1.1rem; font-family: var(--font-body); font-weight: 700; }
+.modal-close { width: 32px; height: 32px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); border: none; background: transparent; cursor: pointer; }
+.modal-close:hover { background: var(--color-surface-offset); color: var(--color-text); }
+.modal-body { padding: 1.5rem; overflow-y: auto; }
+
+.lab-meta { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 1.25rem; font-size: 0.85rem; }
+.lab-meta-item strong { color: var(--color-text); }
+.lab-meta-item { color: var(--color-text-muted); }
+.goal-box { background: var(--color-primary-highlight); border-radius: var(--radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+.goal-box strong { color: var(--color-primary); display: block; margin-bottom: 0.3rem; font-size: 0.85rem; }
+.goal-box p { font-size: 0.9rem; color: var(--color-text); }
+.lab-step { margin-bottom: 1.75rem; }
+.lab-step-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+.lab-step-num { width: 24px; height: 24px; border-radius: var(--radius-full); background: var(--color-primary); color: white; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.lab-step-title { font-weight: 700; font-size: 0.95rem; }
+.lab-step p { font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 0.5rem; }
+.lab-step ul { font-size: 0.88rem; color: var(--color-text-muted); padding-left: 1.2rem; margin-bottom: 0.5rem; }
+.code-block { background: #1e1e1e; color: #d4d4d4; border-radius: var(--radius-md); padding: 1rem; font-family: 'Space Mono', monospace; font-size: 0.78rem; overflow-x: auto; white-space: pre; margin-bottom: 0.6rem; position: relative; }
+.code-block .fname { display: block; color: #888; font-size: 0.7rem; margin-bottom: 0.5rem; }
+.callout { font-size: 0.85rem; padding: 0.75rem 1rem; border-radius: var(--radius-md); background: var(--color-surface-offset); border-left: none; margin-bottom: 0.5rem; color: var(--color-text); }
+.callout.tip { background: color-mix(in oklch, var(--color-success) 12%, var(--color-surface)); }
+.stretch-box { background: var(--color-surface-offset-2); border-radius: var(--radius-lg); padding: 1.25rem; margin-top: 1.5rem; }
+.stretch-box h4 { font-size: 0.9rem; margin-bottom: 0.5rem; font-family: var(--font-body); font-weight: 700; }
+.stretch-box ul { padding-left: 1.2rem; font-size: 0.88rem; color: var(--color-text-muted); }
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  main { padding: 1.5rem 1rem 4rem; }
+  .block { flex-direction: column; }
+  .block-time { width: auto; flex-direction: row; gap: 0.5rem; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    React &amp; Next.js 8일 완성
+  </div>
+  <div class="topbar-right">
+    <span id="progressLabel">0 / 0 완료</span>
+    <button class="theme-btn" data-theme-toggle aria-label="다크모드 전환">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+</header>
+<div class="container">
+  <nav class="sidebar">
+    <a class="nav-item" href="#day1">Day 1 · React 기초</a>
+    <a class="nav-item" href="#day2">Day 2 · Hooks 심화</a>
+    <a class="nav-item" href="#day3">Day 3 · 라우팅/상태관리</a>
+    <a class="nav-item" href="#day4">Day 4 · Next.js 전환</a>
+    <a class="nav-item" href="#day5">Day 5 · 렌더링 전략</a>
+    <a class="nav-item" href="#day6">Day 6 · 인증/DB</a>
+    <a class="nav-item" href="#day7">Day 7 · 스타일/최적화</a>
+    <a class="nav-item" href="#day8">Day 8 · 배포/종합</a>
+  </nav>
+  <main>
+    <div class="hero">
+      <h1>React & Next.js 8일 집중 커리큘럼</h1>
+      <p>8주 분량을 8일(하루 약 12시간)로 압축한 실무 지향 학습 자료입니다. 각 Day 제목 옆의 버튼을 누르면 그날 배운 내용을 직접 따라 할 수 있는 상세 실습 가이드가 열립니다.</p>
+    </div>
+
+    <!-- DAY 1 -->
+    <section class="day-section" id="day1">
+      <div class="day-head">
+        <div class="day-head-left"><span class="day-num">Day 1</span><h2 class="day-title">React 기초 — 컴포넌트와 상태</h2></div>
+        <button class="lab-btn" data-lab-open="lab1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>실습 자료 보기</button>
+      </div>
+      <p class="day-goal">JSX와 컴포넌트 트리 사고방식을 익히고, useState의 불변성 원칙과 리스트 렌더링에서의 key의 역할을 명확히 이해합니다.</p>
+      <div class="day-tags"><span class="tag">JSX</span><span class="tag">useState</span><span class="tag">Props</span><span class="tag">리스트 렌더링</span></div>
+      <div class="timeline">
+        <div class="block"><div class="block-time">09:00–11:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>JSX와 컴포넌트 사고방식</h4>
+          <ul><li>JSX가 React.createElement로 변환되는 원리</li><li>컴포넌트를 함수로 바라보는 관점, props의 단방향 흐름</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">11:30–14:00<small>2.5h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>정적 컴포넌트 트리 구현</h4>
+          <ul><li>Header/Card/Footer로 구성된 정적 페이지 컴포넌트 분리</li><li>props로 데이터 전달, children 패턴 실습</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">15:00–17:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>useState와 불변성 원칙</h4>
+          <ul><li>state를 직접 변경하면 안 되는 이유와 리렌더링 트리거 원리</li><li>객체/배열 state의 얕은 복사 패턴</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">17:30–20:00<small>2.5h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>To-Do 리스트 기본 CRUD</h4>
+          <ul><li>추가/삭제/토글 기능 구현, key prop의 역할 실험</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">21:00–23:00<small>2h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>조건부 렌더링과 이벤트 처리 패턴</h4>
+          <ul><li>단축 평가, 삼항 연산자, early return 패턴 비교</li></ul>
+        </div></div>
+      </div>
+      <div class="checklist-card"><h4>Day 1 체크포인트</h4>
+        <label class="check-item"><input type="checkbox"><span>props와 state의 차이를 설명할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>불변성을 지키며 배열/객체 state를 업데이트할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>key prop이 왜 필요한지 설명할 수 있다</span></label>
+      </div>
+    </section>
+    <div class="day-divider"></div>
+
+    <!-- DAY 2 -->
+    <section class="day-section" id="day2">
+      <div class="day-head">
+        <div class="day-head-left"><span class="day-num">Day 2</span><h2 class="day-title">Hooks 심화 — 커스텀 훅과 Context</h2></div>
+        <button class="lab-btn" data-lab-open="lab2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>실습 자료 보기</button>
+      </div>
+      <p class="day-goal">useEffect의 클린업 흐름, useMemo/useCallback의 최적화 원리, Context와 useReducer로 복잡한 상태를 관리하는 패턴을 익힙니다.</p>
+      <div class="day-tags"><span class="tag">useEffect</span><span class="tag">커스텀 훅</span><span class="tag">Context</span><span class="tag">useReducer</span></div>
+      <div class="timeline">
+        <div class="block"><div class="block-time">09:00–11:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>useEffect의 생명주기와 클린업</h4>
+          <ul><li>의존성 배열의 동작 원리, 클린업 함수의 실행 시점</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">11:30–14:00<small>2.5h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>커스텀 훅 구현 — useDebounce, useFetch</h4>
+          <ul><li>race condition을 재현하고 AbortController로 해결</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">15:00–17:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>useMemo/useCallback과 memo</h4>
+          <ul><li>불필요한 리렌더링이 발생하는 원리와 최적화 시점 판단</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">17:30–20:30<small>3h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>Context + useReducer로 다단계 폼 구현</h4>
+          <ul><li>3단계 회원가입 폼, 단계별 검증 로직</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">21:00–23:00<small>2h</small></div><div class="block-body">
+          <span class="block-type project">프로젝트</span><h4>실습 통합 및 리팩터링</h4>
+          <ul><li>커스텀 훅을 재사용 가능한 형태로 정리</li></ul>
+        </div></div>
+      </div>
+      <div class="checklist-card"><h4>Day 2 체크포인트</h4>
+        <label class="check-item"><input type="checkbox"><span>useEffect 클린업의 필요성을 설명할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>useMemo/useCallback을 언제 써야 하는지 판단할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>Context+useReducer로 전역 상태를 설계할 수 있다</span></label>
+      </div>
+    </section>
+    <div class="day-divider"></div>
+
+    <!-- DAY 3 -->
+    <section class="day-section" id="day3">
+      <div class="day-head">
+        <div class="day-head-left"><span class="day-num">Day 3</span><h2 class="day-title">라우팅과 상태관리 아키텍처</h2></div>
+        <button class="lab-btn" data-lab-open="lab3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>실습 자료 보기</button>
+      </div>
+      <p class="day-goal">React Router의 중첩/보호 라우트 패턴, Zustand의 selector 기반 상태관리, TanStack Query의 서버 상태 캐싱 전략을 통합한 대시보드를 구현합니다.</p>
+      <div class="day-tags"><span class="tag">React Router</span><span class="tag">Zustand</span><span class="tag">TanStack Query</span><span class="tag">보호 라우트</span></div>
+      <div class="timeline">
+        <div class="block"><div class="block-time">09:00–11:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>클라이언트 상태 vs 서버 상태</h4>
+          <ul><li>전역 상태 관리 라이브러리와 서버 캐싱 라이브러리의 역할 구분</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">11:30–14:00<small>2.5h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>중첩 라우트와 보호 라우트 구현</h4>
+          <ul><li>레이아웃 라우트, ProtectedRoute 패턴</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">15:00–17:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>Zustand selector 패턴</h4>
+          <ul><li>selector 구독으로 리렌더링 범위를 좁히는 원리</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">17:30–20:30<small>3h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>TanStack Query로 서버 상태 캐싱</h4>
+          <ul><li>staleTime, 캐시 무효화 흐름 실험</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">21:00–23:00<small>2h</small></div><div class="block-body">
+          <span class="block-type project">프로젝트</span><h4>대시보드 통합 및 점검</h4>
+          <ul><li>인증 + 장바구니 + 상품 목록 통합</li></ul>
+        </div></div>
+      </div>
+      <div class="checklist-card"><h4>Day 3 체크포인트</h4>
+        <label class="check-item"><input type="checkbox"><span>중첩 라우트와 보호 라우트를 구현할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>Zustand selector로 리렌더링을 최소화할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>TanStack Query의 캐시 전략을 설명할 수 있다</span></label>
+      </div>
+    </section>
+    <div class="day-divider"></div>
+
+    <!-- DAY 4 -->
+    <section class="day-section" id="day4">
+      <div class="day-head">
+        <div class="day-head-left"><span class="day-num">Day 4</span><h2 class="day-title">Next.js 기초 — App Router 전환</h2></div>
+        <button class="lab-btn" data-lab-open="lab4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>실습 자료 보기</button>
+      </div>
+      <p class="day-goal">React SPA 사고방식에서 Next.js의 서버 중심 아키텍처로 전환하며, App Router의 파일 기반 라우팅과 서버/클라이언트 컴포넌트 경계를 이해합니다.</p>
+      <div class="day-tags"><span class="tag">App Router</span><span class="tag">Server Component</span><span class="tag">Layout</span><span class="tag">Metadata</span></div>
+      <div class="timeline">
+        <div class="block"><div class="block-time">09:00–11:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>Next.js의 렌더링 철학과 App Router 구조</h4>
+          <ul><li>파일 기반 라우팅 규칙(page, layout, loading, error, not-found)</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">11:30–14:00<small>2.5h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>Next.js 프로젝트 생성 및 라우트 구조 설계</h4>
+          <ul><li>루트/중첩 layout, loading/error/not-found 구현</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">15:00–17:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>서버 컴포넌트와 클라이언트 컴포넌트의 경계</h4>
+          <ul><li>'use client'가 필요한 시점과 직렬화 제약</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">17:30–20:00<small>2.5h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>서버/클라이언트 컴포넌트 혼합 페이지 구현</h4>
+          <ul><li>상품 목록/상세 동적 라우트 구현</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">21:00–23:00<small>2h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>메타데이터 API와 SEO 기초</h4>
+          <ul><li>generateMetadata, Open Graph 설정</li></ul>
+        </div></div>
+      </div>
+      <div class="checklist-card"><h4>Day 4 체크포인트</h4>
+        <label class="check-item"><input type="checkbox"><span>App Router 파일 규칙을 모두 설명할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>서버/클라이언트 컴포넌트 경계를 스스로 판단할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>동적 라우트와 layout 중첩을 구현할 수 있다</span></label>
+      </div>
+    </section>
+    <div class="day-divider"></div>
+
+    <!-- DAY 5 -->
+    <section class="day-section" id="day5">
+      <div class="day-head">
+        <div class="day-head-left"><span class="day-num">Day 5</span><h2 class="day-title">데이터 페칭과 렌더링 전략</h2></div>
+        <button class="lab-btn" data-lab-open="lab5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>실습 자료 보기</button>
+      </div>
+      <p class="day-goal">SSR, SSG, ISR의 차이를 이해하고, Server Actions로 폼 처리와 데이터 변경 로직을 서버에서 직접 수행하는 패턴을 익힙니다.</p>
+      <div class="day-tags"><span class="tag">SSR/SSG/ISR</span><span class="tag">Server Actions</span><span class="tag">캐싱</span></div>
+      <div class="timeline">
+        <div class="block"><div class="block-time">09:00–11:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>렌더링 전략 비교</h4>
+          <ul><li>SSR/SSG/ISR 각각의 캐시 갱신 방식과 사용 사례</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">11:30–14:00<small>2.5h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>ISR 기반 블로그 페이지 구현</h4>
+          <ul><li>generateStaticParams, revalidate 실험</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">15:00–17:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>Server Actions와 Route Handlers</h4>
+          <ul><li>폼 제출 흐름, revalidatePath/revalidateTag</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">17:30–20:30<small>3h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>Server Action 기반 댓글/게시판 CRUD</h4>
+          <ul><li>useOptimistic으로 낙관적 업데이트 구현</li></ul>
+        </div></div>
+        <div class="block"><div class="block-time">21:00–23:00<small>2h</small></div><div class="block-body">
+          <span class="block-type project">프로젝트</span><h4>중간 점검 — 미니 블로그 플랫폼 통합</h4>
+        </div></div>
+      </div>
+      <div class="checklist-card"><h4>Day 5 체크포인트</h4>
+        <label class="check-item"><input type="checkbox"><span>SSR/SSG/ISR을 상황에 맞게 선택할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>Server Action으로 폼 제출과 데이터 변경을 처리할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>useOptimistic으로 낙관적 UI를 구현할 수 있다</span></label>
+      </div>
+    </section>
+    <div class="day-divider"></div>
+
+    <!-- DAY 6 -->
+    <section class="day-section" id="day6">
+      <div class="day-head">
+        <div class="day-head-left"><span class="day-num">Day 6</span><h2 class="day-title">인증과 데이터베이스 연동</h2></div>
+        <button class="lab-btn" data-lab-open="lab6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>실습 자료 보기</button>
+      </div>
+      <p class="day-goal">사용자 인증 흐름과 ORM 기반 데이터베이스 연동을 구현하여 백엔드 통합 역량을 완성합니다.</p>
+      <div class="day-tags"><span class="tag">NextAuth</span><span class="tag">Prisma</span><span class="tag">미들웨어</span></div>
+      <div class="timeline">
+        <div class="block"><div class="block-time">09:00–11:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>인증/인가 아키텍처와 세션 관리</h4>
+        </div></div>
+        <div class="block"><div class="block-time">11:30–14:00<small>2.5h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>NextAuth 자격증명 로그인 구현</h4>
+        </div></div>
+        <div class="block"><div class="block-time">15:00–17:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>Prisma ORM과 스키마 설계</h4>
+        </div></div>
+        <div class="block"><div class="block-time">17:30–20:30<small>3h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>Prisma + PostgreSQL 연동 및 CRUD API</h4>
+        </div></div>
+        <div class="block"><div class="block-time">21:00–23:00<small>2h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>인증 + DB 통합 테스트</h4>
+        </div></div>
+      </div>
+      <div class="checklist-card"><h4>Day 6 체크포인트</h4>
+        <label class="check-item"><input type="checkbox"><span>NextAuth로 로그인/세션 관리를 구현할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>Prisma로 관계형 스키마를 설계하고 마이그레이션할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>권한 기반 라우트 보호를 구현할 수 있다</span></label>
+      </div>
+    </section>
+    <div class="day-divider"></div>
+
+    <!-- DAY 7 -->
+    <section class="day-section" id="day7">
+      <div class="day-head">
+        <div class="day-head-left"><span class="day-num">Day 7</span><h2 class="day-title">스타일링과 성능 최적화</h2></div>
+        <button class="lab-btn" data-lab-open="lab7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>실습 자료 보기</button>
+      </div>
+      <p class="day-goal">Tailwind CSS로 스타일링 시스템을 구축하고, 이미지/폰트 최적화와 코드 스플리팅으로 Core Web Vitals를 개선합니다.</p>
+      <div class="day-tags"><span class="tag">Tailwind CSS</span><span class="tag">이미지 최적화</span><span class="tag">SEO</span></div>
+      <div class="timeline">
+        <div class="block"><div class="block-time">09:00–11:00<small>2h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>Tailwind CSS 유틸리티 우선 설계 철학</h4>
+        </div></div>
+        <div class="block"><div class="block-time">11:00–13:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>기존 프로젝트를 Tailwind로 리스타일링</h4>
+        </div></div>
+        <div class="block"><div class="block-time">14:30–17:00<small>2.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>Next.js 성능 최적화 기법</h4>
+        </div></div>
+        <div class="block"><div class="block-time">17:00–19:30<small>2.5h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>Lighthouse 기반 성능 튜닝</h4>
+        </div></div>
+        <div class="block"><div class="block-time">20:30–23:00<small>2.5h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>SEO 및 접근성 점검</h4>
+        </div></div>
+      </div>
+      <div class="checklist-card"><h4>Day 7 체크포인트</h4>
+        <label class="check-item"><input type="checkbox"><span>Tailwind로 일관된 디자인 시스템을 구축할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>next/image, next/font로 성능을 개선할 수 있다</span></label>
+        <label class="check-item"><input type="checkbox"><span>Lighthouse 점수를 해석하고 개선할 수 있다</span></label>
+      </div>
+    </section>
+    <div class="day-divider"></div>
+
+    <!-- DAY 8 -->
+    <section class="day-section" id="day8">
+      <div class="day-head">
+        <div class="day-head-left"><span class="day-num">Day 8</span><h2 class="day-title">배포와 종합 프로젝트</h2></div>
+        <button class="lab-btn" data-lab-open="lab8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>실습 자료 보기</button>
+      </div>
+      <p class="day-goal">Vercel 배포와 CI/CD 파이프라인을 구성하고, 8일간 배운 내용을 하나의 풀스택 프로젝트로 통합합니다.</p>
+      <div class="day-tags"><span class="tag">Vercel 배포</span><span class="tag">CI/CD</span><span class="tag">종합 프로젝트</span></div>
+      <div class="timeline">
+        <div class="block"><div class="block-time">09:00–10:30<small>1.5h</small></div><div class="block-body">
+          <span class="block-type theory">이론</span><h4>배포 파이프라인과 환경 분리</h4>
+        </div></div>
+        <div class="block"><div class="block-time">10:30–12:00<small>1.5h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>Vercel 배포 및 환경변수 설정</h4>
+        </div></div>
+        <div class="block"><div class="block-time">13:00–19:00<small>6h</small></div><div class="block-body">
+          <span class="block-type project">프로젝트</span><h4>종합 프로젝트 — PLC 모니터링 대시보드형 SaaS</h4>
+        </div></div>
+        <div class="block"><div class="block-time">19:30–21:30<small>2h</small></div><div class="block-body">
+          <span class="block-type practice">실습</span><h4>GitHub Actions CI 파이프라인 구성</h4>
+        </div></div>
+        <div class="block"><div class="block-time">21:30–23:00<small>1.5h</small></div><div class="block-body">
+          <span class="block-type project">프로젝트</span><h4>최종 점검 및 8일 회고</h4>
+        </div></div>
+      </div>
+      <div class="checklist-card"><h4>Day 8 체크포인트</h4>
+        <label class="check-item"><input type="checkbox"><span>Vercel에 프로젝트를 실제로 배포했다</span></label>
+        <label class="check-item"><input type="checkbox"><span>CI/CD 파이프라인이 정상 동작한다</span></label>
+        <label class="check-item"><input type="checkbox"><span>종합 프로젝트를 포트폴리오 형태로 완성했다</span></label>
+        <label class="check-item"><input type="checkbox"><span>8일 학습 내용을 스스로 요약 설명할 수 있다</span></label>
+      </div>
+    </section>
+  </main>
+</div>
+<footer>React &amp; Next.js 8일 집중 커리큘럼 · 하루 12시간 기준 자기주도 학습 자료</footer>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <h3 id="modal-title">실습 자료</h3>
+      <button class="modal-close" id="modal-close" aria-label="닫기">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modal-body-target"></div>
+  </div>
+</div>
+
+<template id="lab1">
+<div class="lab-meta"><span class="lab-meta-item"><strong>난이도</strong>&nbsp;중~상</span><span class="lab-meta-item"><strong>예상 시간</strong>&nbsp;3~4시간</span><span class="lab-meta-item"><strong>결과물</strong>&nbsp;To-Do 리스트 앱(필터/우선순위)</span></div>
+<div class="goal-box"><strong>실습 목표</strong><p>useState 불변성 원칙과 key prop의 역할을 실제로 버그를 만들어보며 체득합니다.</p></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">1</div><div class="lab-step-title">프로젝트 초기화 및 데이터 모델 설계</div></div>
+<pre class="code-block"><span class="fname">terminal</span>npm create vite@latest todo-advanced -- --template react
+cd todo-advanced && npm install && npm run dev</pre>
+<div class="callout tip">Todo 아이템은 id, text, done, priority, createdAt 필드로 설계합니다.</div></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">2</div><div class="lab-step-title">불변성을 지키는 CRUD 로직</div></div>
+<pre class="code-block"><span class="fname">src/App.jsx</span>function toggleTodo(id) {
+  setTodos(prev => prev.map(t => t.id === id ? { ...t, done: !t.done } : t));
+}
+function deleteTodo(id) {
+  setTodos(prev => prev.filter(t => t.id !== id));
+}</pre>
+<div class="callout">todos[0].done = true 처럼 원본을 직접 변경하면 참조가 동일해 리렌더링이 발생하지 않습니다.</div></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">3</div><div class="lab-step-title">key={index}의 함정 실험</div></div>
+<p>목록 중간 항목을 삭제하면서 select의 선택값이 엉키는 것을 관찰한 뒤 key={t.id}로 되돌려 해결을 확인하십시오.</p></div>
+<div class="stretch-box"><h4>도전 과제</h4><ul><li>드래그 앤 드롭 순서 변경 구현</li><li>React.StrictMode에서 useEffect가 두 번 실행되는 이유 설명</li></ul></div>
+</template>
+
+<template id="lab2">
+<div class="lab-meta"><span class="lab-meta-item"><strong>난이도</strong>&nbsp;상</span><span class="lab-meta-item"><strong>예상 시간</strong>&nbsp;4~5시간</span><span class="lab-meta-item"><strong>결과물</strong>&nbsp;커스텀 훅 + 다단계 폼</span></div>
+<div class="goal-box"><strong>실습 목표</strong><p>useDebounce, useFetch(AbortController), useMemo/useCallback, Context+useReducer를 문제→해결 순서로 학습합니다.</p></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">1</div><div class="lab-step-title">useDebounce 구현</div></div>
+<pre class="code-block"><span class="fname">src/hooks/useDebounce.js</span>export function useDebounce(value, delayMs = 400) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(timer);
+  }, [value, delayMs]);
+  return debounced;
+}</pre></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">2</div><div class="lab-step-title">useFetch + AbortController</div></div>
+<pre class="code-block"><span class="fname">src/hooks/useFetch.js</span>useEffect(() => {
+  const controller = new AbortController();
+  fetch(url, { signal: controller.signal }).then(...).catch(err => {
+    if (err.name !== 'AbortError') setError(err.message);
+  });
+  return () => controller.abort();
+}, [url]);</pre>
+<div class="callout">AbortController 없이 url을 빠르게 두 번 바꾸면 race condition이 재현됩니다.</div></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">3</div><div class="lab-step-title">Context + useReducer 다단계 폼</div></div>
+<pre class="code-block"><span class="fname">src/signup/signupReducer.js</span>export function signupReducer(state, action) {
+  switch (action.type) {
+    case 'SET_FIELD': return { ...state, [action.field]: action.value };
+    case 'NEXT_STEP': return { ...state, step: state.step + 1 };
+    default: throw new Error('Unknown action');
+  }
+}</pre></div>
+<div class="stretch-box"><h4>도전 과제</h4><ul><li>Context를 상태/dispatch 2개로 분리하여 리렌더링 최적화</li></ul></div>
+</template>
+
+<template id="lab3">
+<div class="lab-meta"><span class="lab-meta-item"><strong>난이도</strong>&nbsp;상</span><span class="lab-meta-item"><strong>예상 시간</strong>&nbsp;4~5시간</span><span class="lab-meta-item"><strong>결과물</strong>&nbsp;보호 라우트 대시보드 + Zustand + TanStack Query</span></div>
+<div class="goal-box"><strong>실습 목표</strong><p>중첩/보호 라우트, selector 패턴, 서버 상태 캐싱을 통합합니다.</p></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">1</div><div class="lab-step-title">보호 라우트 구현</div></div>
+<pre class="code-block"><span class="fname">src/routes/ProtectedRoute.jsx</span>function ProtectedRoute({ children }) {
+  const isLoggedIn = useAuthStore(state => state.isLoggedIn);
+  if (!isLoggedIn) return <Navigate to="/login" replace />;
+  return children;
+}</pre></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">2</div><div class="lab-step-title">Zustand selector 패턴</div></div>
+<pre class="code-block"><span class="fname">src/store/cartStore.js</span>export const useCartStore = create((set, get) => ({
+  items: [],
+  addItem: (product) => set(state => ({ items: [...state.items, product] })),
+}));
+// 컴포넌트에서는 필요한 값만 selector로 구독
+const count = useCartStore(state => state.items.length);</pre></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">3</div><div class="lab-step-title">TanStack Query 캐싱</div></div>
+<pre class="code-block"><span class="fname">src/pages/Overview.jsx</span>const { data, isLoading } = useQuery({
+  queryKey: ['products'],
+  queryFn: fetchProducts,
+  staleTime: 60_000,
+});</pre></div>
+<div class="stretch-box"><h4>도전 과제</h4><ul><li>useMutation + invalidateQueries로 장바구니 서버 저장 구현</li></ul></div>
+</template>
+
+<template id="lab4">
+<div class="lab-meta"><span class="lab-meta-item"><strong>난이도</strong>&nbsp;상</span><span class="lab-meta-item"><strong>예상 시간</strong>&nbsp;4~5시간</span><span class="lab-meta-item"><strong>결과물</strong>&nbsp;서버/클라이언트 혼합 상품 목록/상세</span></div>
+<div class="goal-box"><strong>실습 목표</strong><p>App Router 파일 규칙 전부를 사용하고, 서버→클라이언트 함수 전달 에러를 직접 재현합니다.</p></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">1</div><div class="lab-step-title">서버 컴포넌트 데이터 페칭</div></div>
+<pre class="code-block"><span class="fname">app/products/page.js</span>async function getProducts() {
+  const res = await fetch('https://api.example.com/products', { next: { revalidate: 60 } });
+  return res.json();
+}
+export default async function ProductsPage() {
+  const products = await getProducts();
+  return <ul>{products.map(p => <li key={p.id}>{p.name}</li>)}</ul>;
+}</pre></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">2</div><div class="lab-step-title">경계 위반 재현</div></div>
+<pre class="code-block"><span class="fname">에러 예시</span>Error: Functions cannot be passed directly to Client Components
+unless you explicitly expose it by marking it with "use server".</pre>
+<div class="callout">함수를 서버→클라이언트로 직접 넘기면 위 에러가 발생합니다. 로직을 클라이언트 내부로 옮기거나 Server Action으로 전환하십시오.</div></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">3</div><div class="lab-step-title">동적 라우트 + generateMetadata</div></div>
+<pre class="code-block"><span class="fname">app/products/[slug]/page.js</span>export async function generateMetadata({ params }) {
+  const product = await getProduct(params.slug);
+  return { title: product.name };
+}</pre></div>
+<div class="stretch-box"><h4>도전 과제</h4><ul><li>generateStaticParams로 정적 경로 사전 생성</li></ul></div>
+</template>
+
+<template id="lab5">
+<div class="lab-meta"><span class="lab-meta-item"><strong>난이도</strong>&nbsp;상</span><span class="lab-meta-item"><strong>예상 시간</strong>&nbsp;5~6시간</span><span class="lab-meta-item"><strong>결과물</strong>&nbsp;Server Action 게시판 + 낙관적 업데이트</span></div>
+<div class="goal-box"><strong>실습 목표</strong><p>Server Actions로 폼 처리를, useOptimistic으로 즉각적인 UI 반응을 구현합니다.</p></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">1</div><div class="lab-step-title">Server Action 기본 구조</div></div>
+<pre class="code-block"><span class="fname">app/board/actions.js</span>'use server';
+import { z } from 'zod';
+const postSchema = z.object({ title: z.string().min(2), content: z.string().min(5) });
+export async function createPost(formData) {
+  const parsed = postSchema.safeParse({ title: formData.get('title'), content: formData.get('content') });
+  if (!parsed.success) return { success: false, errors: parsed.error.flatten().fieldErrors };
+  posts.push({ id: crypto.randomUUID(), ...parsed.data });
+  revalidatePath('/board');
+  return { success: true };
+}</pre></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">2</div><div class="lab-step-title">useOptimistic 낙관적 삭제</div></div>
+<pre class="code-block"><span class="fname">app/board/PostList.jsx</span>const [optimisticPosts, removeOptimistic] = useOptimistic(posts, (state, id) => state.filter(p => p.id !== id));
+async function handleDelete(id) {
+  removeOptimistic(id);
+  await deletePost(id);
+}</pre></div>
+<div class="stretch-box"><h4>도전 과제</h4><ul><li>revalidateTag로 선택적 캐시 무효화 구현</li></ul></div>
+</template>
+
+<template id="lab6">
+<div class="lab-meta"><span class="lab-meta-item"><strong>난이도</strong>&nbsp;최상</span><span class="lab-meta-item"><strong>예상 시간</strong>&nbsp;6시간</span><span class="lab-meta-item"><strong>결과물</strong>&nbsp;NextAuth + Prisma 게시판</span></div>
+<div class="goal-box"><strong>실습 목표</strong><p>세션 인증과 middleware 보호, Prisma 관계형 모델링을 실제 DB로 구현합니다.</p></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">1</div><div class="lab-step-title">Prisma 스키마 설계</div></div>
+<pre class="code-block"><span class="fname">prisma/schema.prisma</span>model User { id String @id @default(uuid()) email String @unique password String posts Post[] }
+model Post { id String @id @default(uuid()) title String content String author User @relation(fields:[authorId], references:[id]) authorId String @@index([authorId]) }</pre></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">2</div><div class="lab-step-title">middleware로 라우트 보호</div></div>
+<pre class="code-block"><span class="fname">middleware.js</span>export default auth((req) => {
+  const isProtected = req.nextUrl.pathname.startsWith('/board');
+  if (isProtected && !req.auth) return NextResponse.redirect(new URL('/login', req.url));
+});
+export const config = { matcher: ['/board/:path*'] };</pre></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">3</div><div class="lab-step-title">권한 검증 포함 삭제 액션</div></div>
+<pre class="code-block"><span class="fname">app/board/actions.js</span>export async function deletePost(id) {
+  const session = await auth();
+  const post = await prisma.post.findUnique({ where: { id } });
+  if (!session?.user || post?.authorId !== session.user.id) return { success:false };
+  await prisma.post.delete({ where: { id } });
+}</pre>
+<div class="callout">클라이언트에서 버튼을 숨기는 것만으로는 권한 없는 삭제를 막을 수 없으므로 서버에서 재검증이 필수입니다.</div></div>
+<div class="stretch-box"><h4>도전 과제</h4><ul><li>PLC SensorLog 모델 설계 및 복합 인덱스 실습</li></ul></div>
+</template>
+
+<template id="lab7">
+<div class="lab-meta"><span class="lab-meta-item"><strong>난이도</strong>&nbsp;중~상</span><span class="lab-meta-item"><strong>예상 시간</strong>&nbsp;5시간</span><span class="lab-meta-item"><strong>결과물</strong>&nbsp;Tailwind 리스타일링 + Lighthouse 리포트</span></div>
+<div class="goal-box"><strong>실습 목표</strong><p>측정 가능한 성능 개선을 최적화 전/후 Lighthouse 점수 비교로 확인합니다.</p></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">1</div><div class="lab-step-title">Lighthouse 기준선 측정</div></div>
+<pre class="code-block"><span class="fname">terminal</span>npx lighthouse http://localhost:3000/board --view --output=html --output-path=./before.html</pre></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">2</div><div class="lab-step-title">next/image, next/font 적용</div></div>
+<pre class="code-block"><span class="fname">app/layout.js</span>import { Inter } from 'next/font/google';
+const inter = Inter({ subsets: ['latin'], display: 'swap' });</pre></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">3</div><div class="lab-step-title">2차 측정 및 비교</div></div>
+<pre class="code-block"><span class="fname">terminal</span>npx lighthouse http://localhost:3000/board --view --output=html --output-path=./after.html</pre>
+<div class="callout tip">before/after의 LCP, CLS, Performance 점수를 표로 정리해 비교하십시오.</div></div>
+<div class="stretch-box"><h4>도전 과제</h4><ul><li>bundle-analyzer로 가장 큰 의존성 분석 및 교체</li></ul></div>
+</template>
+
+<template id="lab8">
+<div class="lab-meta"><span class="lab-meta-item"><strong>난이도</strong>&nbsp;최상</span><span class="lab-meta-item"><strong>예상 시간</strong>&nbsp;8~9시간</span><span class="lab-meta-item"><strong>결과물</strong>&nbsp;배포된 PLC 모니터링 대시보드 + CI/CD</span></div>
+<div class="goal-box"><strong>실습 목표</strong><p>8일간 배운 모든 기술을 PLC 실무 경험과 결합해 실전형 프로젝트로 통합 및 배포합니다.</p></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">1</div><div class="lab-step-title">PLC 태그 데이터 모델</div></div>
+<pre class="code-block"><span class="fname">prisma/schema.prisma</span>model PlcTag {
+  id String @id @default(uuid())
+  device PlcDevice @relation(fields:[deviceId], references:[id])
+  deviceId String
+  tagName String
+  value Float
+  recordedAt DateTime @default(now())
+  @@index([deviceId, recordedAt])
+}</pre></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">2</div><div class="lab-step-title">Vercel 배포</div></div>
+<pre class="code-block"><span class="fname">terminal</span>vercel link
+vercel env add DATABASE_URL production
+vercel --prod</pre></div>
+<div class="lab-step"><div class="lab-step-head"><div class="lab-step-num">3</div><div class="lab-step-title">GitHub Actions CI</div></div>
+<pre class="code-block"><span class="fname">.github/workflows/ci.yml</span>on: { pull_request: { branches: [main] } }
+jobs:
+  build:
+    steps:
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build</pre></div>
+<div class="stretch-box"><h4>도전 과제</h4><ul><li>폴링을 Server-Sent Events(SSE)로 교체</li><li>Tailscale로 로컬 PLC와 배포된 대시보드 연결 아키텍처 설계</li></ul></div>
+</template>
+
+<script>
+(function(){
+  var toggleBtn = document.querySelector('[data-theme-toggle]');
+  var root = document.documentElement;
+  var mode = window.matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
+  root.setAttribute('data-theme', mode);
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function(){
+      mode = (mode === 'dark') ? 'light' : 'dark';
+      root.setAttribute('data-theme', mode);
+    });
+  }
+
+  var checks = document.querySelectorAll('.check-item input[type="checkbox"]');
+  var label = document.getElementById('progressLabel');
+  function updateProgress(){
+    var total = checks.length;
+    var done = 0;
+    checks.forEach(function(c){ if (c.checked) done++; });
+    if (label) label.textContent = done + ' / ' + total + ' 완료';
+  }
+  checks.forEach(function(c){
+    c.addEventListener('change', function(){
+      c.closest('.check-item').classList.toggle('done', c.checked);
+      updateProgress();
+    });
+  });
+  updateProgress();
+
+  var sections = document.querySelectorAll('main .day-section');
+  var navItems = document.querySelectorAll('.nav-item');
+  if (window.IntersectionObserver) {
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) {
+          navItems.forEach(function(n){
+            n.classList.toggle('active', n.getAttribute('href') === '#' + e.target.id);
+          });
+        }
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    sections.forEach(function(s){ obs.observe(s); });
+  }
+
+  var overlay = document.getElementById('modal-overlay');
+  var modalBody = document.getElementById('modal-body-target');
+  var modalTitle = document.getElementById('modal-title');
+  var modalClose = document.getElementById('modal-close');
+  var titles = {
+    lab1: 'Day 1 실습 · To-Do 리스트 심화',
+    lab2: 'Day 2 실습 · 커스텀 훅 & 다단계 폼',
+    lab3: 'Day 3 실습 · 라우팅 & 상태관리 대시보드',
+    lab4: 'Day 4 실습 · Next.js 서버/클라이언트 경계',
+    lab5: 'Day 5 실습 · Server Actions 게시판',
+    lab6: 'Day 6 실습 · 인증 & Prisma DB 연동',
+    lab7: 'Day 7 실습 · Tailwind & 성능 최적화',
+    lab8: 'Day 8 실습 · 배포 & 종합 프로젝트'
+  };
+  var lastFocused = null;
+
+  document.querySelectorAll('[data-lab-open]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var id = btn.getAttribute('data-lab-open');
+      var tpl = document.getElementById(id);
+      if (!tpl || !overlay || !modalBody) return;
+      modalBody.innerHTML = '';
+      modalBody.appendChild(tpl.content.cloneNode(true));
+      if (modalTitle) modalTitle.textContent = titles[id] || '실습 자료';
+      lastFocused = btn;
+      overlay.classList.add('open');
+      if (modalClose) modalClose.focus();
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function closeModal(){
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    if (lastFocused) lastFocused.focus();
+  }
+  if (modalClose) modalClose.addEventListener('click', closeModal);
+  if (overlay) overlay.addEventListener('click', function(e){ if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) closeModal();
+  });
+})();
+</script>
+</body>
+</html>
