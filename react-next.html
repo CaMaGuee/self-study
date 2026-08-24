@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <!-- 반응형 레이아웃을 위한 필수 viewport 메타 태그 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>React · Next.js Mac 설정 튜토리얼</title>
+
+  <!-- 폰트 로딩 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    /* 색상·레이아웃 토큰 (라이트/다크 공통) */
+    :root,
+    [data-theme="light"] {
+      --bg: #f7f6f2;
+      --surface: #fcfbf8;
+      --surface-2: #f1efe9;
+      --surface-3: #e7e4dc;
+
+      --text: #22201a;
+      --muted: #6c6a64;
+      --border: rgba(34, 32, 26, 0.12);
+
+      --primary: #01696f;
+      --primary-2: #0c4e54;
+
+      --react: #149eca;
+      --next: #111111;
+
+      --shadow: 0 20px 50px rgba(20, 20, 20, 0.08);
+      --panel-shadow: 0 10px 25px rgba(20, 20, 20, 0.06);
+    }
+
+    /* 다크 모드 색상 토큰 */
+    [data-theme="dark"] {
+      --bg: #121212;
+      --surface: #1a1a1a;
+      --surface-2: #222222;
+      --surface-3: #2d2d2d;
+
+      --text: #f0eee8;
+      --muted: #b0ada5;
+      --border: rgba(255, 255, 255, 0.10);
+
+      --primary: #4f98a3;
+      --primary-2: #7ab9c2;
+
+      --react: #61dafb;
+      --next: #ffffff;
+
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      --panel-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    }
+
+    /* 리셋 및 기본 설정 */
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'IBM Plex Sans KR', sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(79, 152, 163, 0.14), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(97, 218, 251, 0.10), transparent 24%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    /* 접근성용 스킵 링크 */
+    .skip-link {
+      position: absolute;
+      left: 16px;
+      top: -40px;
+      background: var(--primary);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      z-index: 100;
+    }
+
+    .skip-link:focus {
+      top: 16px;
+    }
+
+    /* 상단 히어로 영역: 좌측 설명, 우측 사전 조건 */
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+
+    .hero-card,
+    .meta-card,
+    .tabs-shell,
+    .viewer-shell {
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 28px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--react));
+      color: #fff;
+      box-shadow: var(--panel-shadow);
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.8rem);
+      line-height: 1.08;
+      margin: 0 0 14px;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      margin: 0;
+      font-size: 1.02rem;
+      color: var(--muted);
+      max-width: 68ch;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+
+    .meta-card {
+      padding: 22px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .meta-card h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .meta-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-item {
+      padding: 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .meta-item strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.96rem;
+    }
+
+    /* 메인 작업 공간: 좌측 탭/스텝, 우측 뷰어 */
+    .workspace {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .tabs-shell {
+      position: sticky;
+      top: 24px;
+      padding: 18px;
+    }
+
+    .tab-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 12px;
+      background: var(--surface-2);
+      color: var(--text);
+      font-weight: 700;
+      cursor: pointer;
+      transition:
+        transform .25s ease,
+        background .25s ease,
+        border-color .25s ease;
+      min-height: 48px;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--primary) 86%, white 14%),
+        color-mix(in srgb, var(--react) 70%, var(--primary) 30%)
+      );
+      color: #fff;
+      border-color: transparent;
+      transform: translateY(-2px);
+    }
+
+    .step-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step-btn {
+      width: 100%;
+      text-align: left;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition:
+        transform .25s ease,
+        background .25s ease,
+        border-color .25s ease;
+      min-height: 56px;
+    }
+
+    .step-btn:hover,
+    .tab-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .step-btn.active {
+      background: var(--surface-2);
+      border-color: color-mix(in srgb, var(--primary) 45%, white 0%);
+      box-shadow: var(--panel-shadow);
+    }
+
+    .step-num {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--primary) 18%, transparent);
+      color: var(--primary-2);
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    .viewer-shell {
+      overflow: hidden;
+      min-height: 760px;
+      position: relative;
+    }
+
+    .viewer-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      padding: 20px 22px 0;
+    }
+
+    .viewer-top h2 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .viewer-top p {
+      margin: 4px 0 0;
+      color: var(--muted);
+    }
+
+    .theme-toggle {
+      min-width: 48px;
+      min-height: 48px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    /* 슬라이드 영역: 스텝별 화면을 가로 슬라이드로 전환 */
+    .slides {
+      display: flex;
+      width: 100%;
+      transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+    }
+
+    .slide {
+      min-width: 100%;
+      padding: 22px;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .slide-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .framework-badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .framework-react {
+      background: rgba(97, 218, 251, 0.14);
+      color: var(--react);
+    }
+
+    .framework-next {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .lead {
+      display: grid;
+      gap: 10px;
+    }
+
+    .lead h3 {
+      margin: 0;
+      font-size: clamp(1.5rem, 3vw, 2.4rem);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    .lead p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--panel-shadow);
+    }
+
+    .panel-title {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .terminal {
+      background: #0b0f14;
+      color: #d7e3f0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.92rem;
+      padding: 18px;
+      min-height: 280px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .terminal .prompt {
+      color: #7dd3fc;
+    }
+
+    .terminal .comment {
+      color: #93a4b5;
+    }
+
+    .terminal .success {
+      color: #86efac;
+    }
+
+    .terminal .warn {
+      color: #f9d77e;
+    }
+
+    .code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.92rem;
+      white-space: pre-wrap;
+      padding: 18px;
+      background: linear-gradient(180deg, var(--surface), var(--surface-2));
+      color: var(--text);
+      min-height: 280px;
+      overflow: auto;
+    }
+
+    .preview {
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+      min-height: 280px;
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface) 80%, transparent),
+        var(--surface-2)
+      );
+    }
+
+    .browser {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: var(--panel-shadow);
+    }
+
+    .browser-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--surface-3);
+    }
+
+    .address {
+      flex: 1;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .browser-body {
+      padding: 28px;
+      min-height: 220px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      gap: 10px;
+    }
+
+    .hello-react h4,
+    .hello-next h4 {
+      margin: 0;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      letter-spacing: -0.03em;
+    }
+
+    .hello-react p,
+    .hello-next p,
+    .notes li {
+      color: var(--muted);
+    }
+
+    .react-mark {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      border: 3px solid var(--react);
+      display: grid;
+      place-items: center;
+      color: var(--react);
+      font-weight: 700;
+      margin: 0 auto 6px;
+      box-shadow: 0 0 0 10px rgba(97, 218, 251, 0.08);
+    }
+
+    .next-mark {
+      width: 68px;
+      height: 68px;
+      border-radius: 18px;
+      background: var(--text);
+      color: var(--bg);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      margin: 0 auto 6px;
+    }
+
+    .notes {
+      margin: 0;
+      padding-left: 20px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .footer-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 22px 22px;
+    }
+
+    .nav-btn {
+      min-height: 48px;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .nav-btn.primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    /* 1080px 이하: 좌우 2단 → 1단, sticky 제거 */
+    @media (max-width: 1080px) {
+      .hero,
+      .workspace,
+      .panel-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs-shell {
+        position: static;
+      }
+
+      .viewer-shell {
+        min-height: auto;
+      }
+    }
+
+    /* 720px 이하: 모바일 최적화 패딩·폰트·radius 조정 */
+    @media (max-width: 720px) {
+      .app {
+        padding: 14px;
+      }
+
+      .hero-card,
+      .meta-card,
+      .tabs-shell,
+      .viewer-shell {
+        border-radius: 20px;
+      }
+
+      .viewer-top,
+      .slide,
+      .footer-nav {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .browser-body,
+      .preview {
+        padding: 18px;
+      }
+
+      .lead h3 {
+        font-size: 1.4rem;
+      }
+    }
+
+    /* 모션 선호도: 모션 감소 설정 존중 */
+    @media (prefers-reduced-motion: reduce) {
+      .slides,
+      .step-btn,
+      .tab-btn {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 키보드 사용자용 본문 바로가기 -->
+  <a class="skip-link" href="#main-content">본문으로 이동</a>
+
+  <div class="app">
+    <header class="hero">
+      <!-- 좌측 히어로 설명 -->
+      <section class="hero-card">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 3L20 8V16L12 21L4 16V8L12 3Z"
+                    stroke="currentColor" stroke-width="1.8" />
+              <path d="M12 8V16M8.5 10L15.5 14M15.5 10L8.5 14"
+                    stroke="currentColor" stroke-width="1.8"
+                    stroke-linecap="round" />
+            </svg>
+          </div>
+          <span>Mac 기반 React · Next.js 인터랙티브 튜토리얼</span>
+        </div>
+
+        <h1>
+          탭을 전환하고 스텝을 누를 때마다 화면이 슬라이드되며
+          초기 설정부터 Hello World까지 이어집니다.
+        </h1>
+
+        <p>
+          좌측에서 React 또는 Next.js 탭을 선택한 뒤 각 단계를 누르면,
+          우측 화면이 애니메이션과 함께 이동하면서 터미널 입력, 핵심 코드,
+          브라우저 결과를 순서대로 보여주도록 구성했습니다.
+        </p>
+
+        <div class="pill-row">
+          <span class="pill">macOS 기준</span>
+          <span class="pill">터미널 흐름 포함</span>
+          <span class="pill">코드와 결과 화면 동시 표시</span>
+          <span class="pill">탭 + 단계형 애니메이션</span>
+        </div>
+      </section>
+
+      <!-- 우측 사전 안내 -->
+      <aside class="meta-card" aria-label="사전 안내">
+        <h2>사전 조건</h2>
+        <div class="meta-list">
+          <div class="meta-item">
+            <strong>공통 환경</strong>
+            <span>Node.js와 npm이 먼저 설치되어 있어야 하며, macOS는 지원 운영체제입니다.</span>
+          </div>
+          <div class="meta-item">
+            <strong>React 경로</strong>
+            <span>
+              React 공식 문서는 Create React App이 deprecated라고 안내하므로,
+              이 데모는 Vite 기반 React 시작 흐름으로 정리했습니다.
+            </span>
+          </div>
+          <div class="meta-item">
+            <strong>Next.js 경로</strong>
+            <span>
+              create-next-app으로 프로젝트를 생성하고 app/page.tsx 또는
+              app/page.js를 수정하는 최신 기본 흐름을 사용했습니다.
+            </span>
+          </div>
+        </div>
+      </aside>
+    </header>
+
+    <!-- 메인 작업 영역 -->
+    <main id="main-content" class="workspace">
+      <!-- 좌측: 프레임워크 탭 + 스텝 목록 -->
+      <aside class="tabs-shell" aria-label="탭 및 단계 목록">
+        <div class="tab-header" role="tablist" aria-label="프레임워크 선택">
+          <button
+            class="tab-btn active"
+            id="tab-react"
+            role="tab"
+            aria-selected="true"
+            aria-controls="panel-react"
+            data-framework="react"
+          >
+            React
+          </button>
+          <button
+            class="tab-btn"
+            id="tab-next"
+            role="tab"
+            aria-selected="false"
+            aria-controls="panel-next"
+            data-framework="next"
+          >
+            Next.js
+          </button>
+        </div>
+
+        <div class="step-list" id="step-list"></div>
+      </aside>
+
+      <!-- 우측: 슬라이드 뷰어 (터미널·코드·결과 화면) -->
+      <section class="viewer-shell" aria-live="polite">
+        <div class="viewer-top">
+          <div>
+            <h2 id="viewer-title">React 튜토리얼</h2>
+            <p id="viewer-subtitle">
+              설치 확인부터 개발 서버 실행, Hello World 확인까지 순서대로 진행됩니다.
+            </p>
+          </div>
+          <button
+            class="theme-toggle"
+            type="button"
+            data-theme-toggle
+            aria-label="라이트 모드로 전환"
+          >
+            ☾
+          </button>
+        </div>
+
+        <div class="slides" id="slides"></div>
+
+        <div class="footer-nav">
+          <button class="nav-btn" id="prev-btn" type="button">이전 단계</button>
+          <button class="nav-btn primary" id="next-btn" type="button">다음 단계</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    /* React / Next.js 튜토리얼 데이터 */
+    const tutorialData = {
+      react: {
+        title: 'React 튜토리얼',
+        subtitle:
+          'React 공식 문서에서 Create React App deprecated 안내가 있으므로, macOS에서 Vite 기반 React 시작 흐름으로 구성했습니다.',
+        badgeClass: 'framework-react',
+        badgeText: 'React + Vite',
+        steps: [
+          {
+            title: 'Node.js 설치 확인',
+            summary: '프로젝트를 만들기 전에 Node.js와 npm 버전을 먼저 확인합니다.',
+            terminalTitle: '터미널',
+            terminal:
+              '<span class="comment"># macOS 터미널에서 버전 확인</span>\n' +
+              '<span class="prompt">$</span> node -v\n' +
+              'v20.11.1\n\n' +
+              '<span class="prompt">$</span> npm -v\n' +
+              '10.2.4\n\n' +
+              '<span class="comment"># 둘 중 하나가 없다면 nodejs.org 또는 패키지 매니저로 설치 후 다시 확인</span>',
+            codeTitle: '설명',
+            code:
+              'React 앱을 로컬에서 실행하려면 먼저 Node.js 런타임과 npm이 필요합니다.\n\n' +
+              '이 단계의 핵심은 다음 두 가지입니다.\n' +
+              '1. node -v 로 Node 설치 여부 확인\n' +
+              '2. npm -v 로 패키지 매니저 동작 확인\n\n' +
+              '버전 문자열이 정상 출력되면 다음 단계로 진행하면 됩니다.',
+            previewTitle: '진행 상태',
+            preview:
+              '<div class="browser">' +
+              '<div class="browser-bar">' +
+              '<div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>' +
+              '<div class="address">환경 점검 단계</div>' +
+              '</div>' +
+              '<div class="browser-body">' +
+              '<div>' +
+              '<div class="react-mark">R</div>' +
+              '<h4>개발 준비 확인</h4>' +
+              '<p>Node.js와 npm이 준비되면 React 앱 생성 명령을 바로 실행할 수 있습니다.</p>' +
+              '</div>' +
+              '</div>' +
+              '</div>',
+            notes: [
+              'macOS는 Next.js와 React 모두 공식적으로 지원되는 운영체제입니다.',
+              '설치 확인 단계는 두 프레임워크 공통 선행 조건입니다.'
+            ]
+          },
+          {
+            title: 'React 프로젝트 생성',
+            summary: 'Vite 템플릿으로 React 앱을 생성합니다.',
+            terminalTitle: '터미널',
+            terminal:
+              '<span class="comment"># 새 React 앱 생성</span>\n' +
+              '<span class="prompt">$</span> npm create vite@latest react-hello-demo -- --template react\n\n' +
+              '<span class="comment"># 생성된 폴더로 이동</span>\n' +
+              '<span class="prompt">$</span> cd react-hello-demo\n\n' +
+              '<span class="comment"># 의존성 설치</span>\n' +
+              '<span class="prompt">$</span> npm install\n' +
+              '<span class="success">added packages successfully</span>',
+            codeTitle: '설명',
+            code:
+              'React 공식 설치 페이지는 새 React 앱을 만들 때 권장 프레임워크 사용을 안내하고, ' +
+              '별도 주석으로 Create React App이 deprecated 되었다고 명시합니다.\n\n' +
+              '실무와 학습 모두를 고려하면 현재는 Vite 기반 React 시작 흐름이 가장 간단합니다.\n' +
+              '프로젝트 생성 후 cd 로 진입하고 npm install 로 의존성을 설치하면 기본 실행 준비가 끝납니다.',
+            previewTitle: '폴더 구조 감각',
+            preview:
+              '<div class="panel">' +
+              '<div class="panel-title">생성 직후 주요 파일</div>' +
+              '<div class="code">' +
+              'react-hello-demo/\n' +
+              '├─ index.html\n' +
+              '├─ package.json\n' +
+              '├─ src/\n' +
+              '│  ├─ App.jsx\n' +
+              '│  └─ main.jsx\n' +
+              '└─ vite.config.js' +
+              '</div>' +
+              '</div>',
+            notes: [
+              '프로젝트 이름은 소문자와 하이픈 조합으로 만드는 편이 안전합니다.',
+              '이 시점까지는 아직 브라우저 결과물보다 골격 생성 단계입니다.'
+            ]
+          },
+          {
+            title: 'Hello World 코드 작성',
+            summary: 'src/App.jsx를 단순한 Hello World 화면으로 바꿉니다.',
+            terminalTitle: '수정 대상 파일',
+            terminal: 'src/App.jsx',
+            codeTitle: 'App.jsx 예시',
+            code:
+              "import './App.css';\n\n" +
+              "function App() {\n" +
+              "  return (\n" +
+              "    <main style={{\n" +
+              "      minHeight: '100vh',\n" +
+              "      display: 'grid',\n" +
+              "      placeItems: 'center',\n" +
+              "      background: '#111827',\n" +
+              "      color: '#f9fafb',\n" +
+              "      fontFamily: 'system-ui, sans-serif'\n" +
+              "    }}>\n" +
+              "      <div style={{ textAlign: 'center' }}>\n" +
+              "        <h1>Hello, React!</h1>\n" +
+              "        <p>macOS에서 React 초기 설정이 완료되었습니다.</p>\n" +
+              "      </div>\n" +
+              "    </main>\n" +
+              "  );\n" +
+              "}\n\n" +
+              "export default App;",
+            previewTitle: '렌더링 구조',
+            preview:
+              '<div class="panel">' +
+              '<div class="panel-title">코드 동작 요약</div>' +
+              '<ul class="notes">' +
+              '<li>App 컴포넌트가 최상위 화면을 반환합니다.</li>' +
+              '<li>h1에는 Hello, React! 문자열이 출력됩니다.</li>' +
+              '<li>p에는 macOS 초기 설정 완료 문장이 함께 표시됩니다.</li>' +
+              '</ul>' +
+              '</div>',
+            notes: [
+              'React에서는 컴포넌트가 JSX를 반환하면 화면에 반영됩니다.',
+              '학습용 단계이므로 최대한 단순한 단일 컴포넌트로 시작하는 것이 좋습니다.'
+            ]
+          },
+          {
+            title: '개발 서버 실행',
+            summary: 'npm run dev로 로컬 개발 서버를 띄웁니다.',
+            terminalTitle: '터미널',
+            terminal:
+              '<span class="prompt">$</span> npm run dev\n\n' +
+              '&gt; react-hello-demo@0.0.0 dev\n' +
+              '&gt; vite\n\n' +
+              '<span class="success">VITE v5.x ready in 320 ms</span>\n\n' +
+              '<span class="warn">➜</span>  Local:   http://localhost:5173/\n' +
+              '<span class="warn">➜</span>  Network: use --host to expose',
+            codeTitle: '무슨 일이 일어나는가',
+            code:
+              'npm run dev 는 package.json 에 등록된 dev 스크립트를 실행합니다.\n\n' +
+              'Vite 개발 서버가 뜨면 보통 localhost:5173 주소가 표시됩니다.\n' +
+              '이제 브라우저에서 해당 주소로 접속하면 React 컴포넌트가 즉시 렌더링됩니다.',
+            previewTitle: '실행 결과',
+            preview:
+              '<div class="browser">' +
+              '<div class="browser-bar">' +
+              '<div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>' +
+              '<div class="address">http://localhost:5173</div>' +
+              '</div>' +
+              '<div class="browser-body hello-react">' +
+              '<div>' +
+              '<div class="react-mark">R</div>' +
+              '<h4>Hello, React!</h4>' +
+              '<p>macOS에서 React 초기 설정이 완료되었습니다.</p>' +
+              '</div>' +
+              '</div>' +
+              '</div>',
+            notes: [
+              'Vite는 저장 즉시 화면이 갱신되는 빠른 개발 경험을 제공합니다.',
+              '터미널 주소와 브라우저 주소가 정확히 매칭되는지 확인하면 됩니다.'
+            ]
+          }
+        ]
+      },
+      next: {
+        title: 'Next.js 튜토리얼',
+        subtitle:
+          'create-next-app 최신 기본 흐름으로 프로젝트를 만들고 app/page 파일을 수정해 Hello World를 확인합니다.',
+        badgeClass: 'framework-next',
+        badgeText: 'Next.js App Router',
+        steps: [
+          {
+            title: 'Node.js 요구사항 확인',
+            summary: 'Next.js는 최소 Node.js 20.9 이상을 요구합니다.',
+            terminalTitle: '터미널',
+            terminal:
+              '<span class="comment"># Next.js 시작 전 버전 확인</span>\n' +
+              '<span class="prompt">$</span> node -v\n' +
+              'v20.11.1\n\n' +
+              '<span class="prompt">$</span> npm -v\n' +
+              '10.2.4\n\n' +
+              '<span class="comment"># 최소 Node.js 20.9 이상이면 진행 가능</span>',
+            codeTitle: '설명',
+            code:
+              'Next.js 최신 설치 문서는 최소 Node.js 20.9를 요구합니다.\n\n' +
+              '따라서 이 단계는 단순 확인이 아니라, 이후 create-next-app 실행 가능 여부를 판별하는 검사 단계입니다.\n' +
+              '버전이 낮으면 먼저 Node.js를 업그레이드한 뒤 진행하는 것이 맞습니다.',
+            previewTitle: '진행 상태',
+            preview:
+              '<div class="browser">' +
+              '<div class="browser-bar">' +
+              '<div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>' +
+              '<div class="address">환경 점검 단계</div>' +
+              '</div>' +
+              '<div class="browser-body">' +
+              '<div>' +
+              '<div class="next-mark">N</div>' +
+              '<h4>Next.js 시작 조건 확인</h4>' +
+              '<p>Node.js 버전이 요구사항을 충족하면 바로 프로젝트 생성으로 넘어갈 수 있습니다.</p>' +
+              '</div>' +
+              '</div>' +
+              '</div>',
+            notes: [
+              'React와 달리 여기서는 공식 문서의 최소 Node 버전 수치가 명확합니다.',
+              '버전 확인 없이 진행하면 생성 단계에서 실패할 수 있습니다.'
+            ]
+          },
+          {
+            title: 'Next.js 프로젝트 생성',
+            summary: 'create-next-app 최신 기본값으로 앱을 생성합니다.',
+            terminalTitle: '터미널',
+            terminal:
+              '<span class="comment"># 최신 Next.js 앱 생성</span>\n' +
+              '<span class="prompt">$</span> npx create-next-app@latest next-hello-demo --yes\n\n' +
+              '<span class="comment"># 프로젝트 폴더 이동</span>\n' +
+              '<span class="prompt">$</span> cd next-hello-demo',
+            codeTitle: '생성 시 포함되는 기본값',
+            code:
+              '--yes 옵션을 주면 저장된 설정 또는 기본 설정으로 프롬프트를 건너뜁니다.\n\n' +
+              '기본 설정에는 TypeScript, Tailwind CSS, ESLint, App Router, Turbopack, import alias 가 포함될 수 있습니다.\n' +
+              '즉, 생성 직후부터 꽤 완성도 있는 초기 프로젝트가 준비됩니다.',
+            previewTitle: '프로젝트 골격',
+            preview:
+              '<div class="panel">' +
+              '<div class="panel-title">생성 직후 주요 파일</div>' +
+              '<div class="code">' +
+              'next-hello-demo/\n' +
+              '├─ app/\n' +
+              '│  ├─ layout.tsx\n' +
+              '│  └─ page.tsx\n' +
+              '├─ public/\n' +
+              '├─ package.json\n' +
+              '└─ next.config.ts' +
+              '</div>' +
+              '</div>',
+            notes: [
+              '기본 템플릿은 App Router 구조를 사용합니다.',
+              '학습 목적이라면 기본 구조를 지우지 말고 page 파일만 먼저 바꾸는 편이 흐름 파악에 좋습니다.'
+            ]
+          },
+          {
+            title: 'Hello World 페이지 작성',
+            summary: 'app/page.tsx 또는 app/page.js를 Hello World로 수정합니다.',
+            terminalTitle: '수정 대상 파일',
+            terminal: 'app/page.tsx',
+            codeTitle: 'page.tsx 예시',
+            code:
+              "export default function Page() {\n" +
+              "  return (\n" +
+              "    <main style={{\n" +
+              "      minHeight: '100vh',\n" +
+              "      display: 'grid',\n" +
+              "      placeItems: 'center',\n" +
+              "      background: '#0f172a',\n" +
+              "      color: '#f8fafc',\n" +
+              "      fontFamily: 'system-ui, sans-serif'\n" +
+              "    }}>\n" +
+              "      <div style={{ textAlign: 'center' }}>\n" +
+              "        <h1>Hello, Next.js!</h1>\n" +
+              "        <p>macOS에서 Next.js 초기 설정이 완료되었습니다.</p>\n" +
+              "      </div>\n" +
+              "    </main>\n" +
+              "  );\n" +
+              "}\n",
+            previewTitle: '렌더링 구조',
+            preview:
+              '<div class="panel">' +
+              '<div class="panel-title">코드 동작 요약</div>' +
+              '<ul class="notes">' +
+              '<li>루트 경로 / 에서 Page 컴포넌트가 렌더링됩니다.</li>' +
+              '<li>h1에는 Hello, Next.js! 문자열이 출력됩니다.</li>' +
+              '<li>layout 파일은 html, body 바깥 껍데기를 담당하고 page 파일이 실제 화면 내용을 채웁니다.</li>' +
+              '</ul>' +
+              '</div>',
+            notes: [
+              'Next.js App Router에서는 app/page 파일이 루트 페이지 역할을 합니다.',
+              'layout과 page의 역할을 구분해서 이해하면 이후 구조 확장이 쉬워집니다.'
+            ]
+          },
+          {
+            title: '개발 서버 실행과 결과 확인',
+            summary: 'npm run dev 후 localhost:3000에서 페이지를 확인합니다.',
+            terminalTitle: '터미널',
+            terminal:
+              '<span class="prompt">$</span> npm run dev\n\n' +
+              '&gt; next-hello-demo@0.1.0 dev\n' +
+              '&gt; next dev\n\n' +
+              '<span class="success">▲ Next.js ready</span>\n' +
+              '<span class="warn">- Local:</span>        http://localhost:3000\n' +
+              '<span class="warn">- Network:</span>      http://192.168.x.x:3000',
+            codeTitle: '무슨 일이 일어나는가',
+            code:
+              'npm run dev 는 Next 개발 서버를 실행합니다.\n\n' +
+              '기본 로컬 주소는 localhost:3000 이며, app/page.tsx 를 저장하면 화면이 즉시 다시 렌더링됩니다.\n' +
+              '즉, React 와 비슷한 개발 체감이지만 라우팅과 서버 기능을 프레임워크가 함께 제공한다는 점이 차이입니다.',
+            previewTitle: '실행 결과',
+            preview:
+              '<div class="browser">' +
+              '<div class="browser-bar">' +
+              '<div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>' +
+              '<div class="address">http://localhost:3000</div>' +
+              '</div>' +
+              '<div class="browser-body hello-next">' +
+              '<div>' +
+              '<div class="next-mark">N</div>' +
+              '<h4>Hello, Next.js!</h4>' +
+              '<p>macOS에서 Next.js 초기 설정이 완료되었습니다.</p>' +
+              '</div>' +
+              '</div>' +
+              '</div>',
+            notes: [
+              '기본 포트는 3000입니다.',
+              '브라우저 결과는 결국 HTML로 렌더링되므로 튜토리얼 데모 표현에 적합합니다.'
+            ]
+          }
+        ]
+      }
+    };
+
+    /* DOM 참조 */
+    const stepList = document.getElementById('step-list');
+    const slides = document.getElementById('slides');
+    const viewerTitle = document.getElementById('viewer-title');
+    const viewerSubtitle = document.getElementById('viewer-subtitle');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const themeToggle = document.querySelector('[data-theme-toggle]');
+
+    let currentFramework = 'react';
+    let currentStep = 0;
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function renderStepButtons() {
+      const data = tutorialData[currentFramework];
+      stepList.innerHTML = data.steps
+        .map(
+          (step, index) => `
+          <button
+            class="step-btn ${index === currentStep ? 'active' : ''}"
+            type="button"
+            data-step="${index}"
+            aria-current="${index === currentStep ? 'step' : 'false'}"
+          >
+            <span class="step-num">${index + 1}</span>
+            <strong>${step.title}</strong><br>
+            <span style="color: var(--muted); font-size: 0.92rem;">
+              ${step.summary}
+            </span>
+          </button>
+        `
+        )
+        .join('');
+
+      stepList.querySelectorAll('.step-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          currentStep = Number(btn.dataset.step);
+          updateUI();
+        });
+      });
+    }
+
+    function renderSlides() {
+      const data = tutorialData[currentFramework];
+      slides.innerHTML = data.steps
+        .map(
+          (step, index) => `
+          <article class="slide" role="group" aria-label="${index + 1}단계 ${step.title}">
+            <div class="slide-head">
+              <div class="lead">
+                <div class="step-badge">Step ${index + 1}</div>
+                <h3>${step.title}</h3>
+                <p>${step.summary}</p>
+              </div>
+              <div class="framework-badge ${data.badgeClass}">
+                ${data.badgeText}
+              </div>
+            </div>
+
+            <div class="panel-grid">
+              <section class="panel">
+                <div class="panel-title">
+                  <span>${step.terminalTitle}</span>
+                  <span>입력/실행 흐름</span>
+                </div>
+                <div class="terminal">${step.terminal}</div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-title">
+                  <span>${step.codeTitle}</span>
+                  <span>핵심 개념</span>
+                </div>
+                <div class="code">${escapeHtml(step.code)}</div>
+              </section>
+            </div>
+
+            <section class="panel">
+              <div class="panel-title">
+                <span>${step.previewTitle}</span>
+                <span>시각적 결과</span>
+              </div>
+              <div class="preview">${step.preview}</div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-title">
+                <span>체크 포인트</span>
+                <span>검증</span>
+              </div>
+              <div class="code">
+                <ul class="notes">
+                  ${step.notes.map((note) => `<li>${note}</li>`).join('')}
+                </ul>
+              </div>
+            </section>
+          </article>
+        `
+        )
+        .join('');
+    }
+
+    function updateTabs() {
+      tabButtons.forEach((btn) => {
+        const active = btn.dataset.framework === currentFramework;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', String(active));
+      });
+    }
+
+    function updateSlidePosition() {
+      slides.style.transform = `translateX(-${currentStep * 100}%)`;
+    }
+
+    function updateNavButtons() {
+      const total = tutorialData[currentFramework].steps.length;
+      prevBtn.disabled = currentStep === 0;
+      nextBtn.disabled = currentStep === total - 1;
+      prevBtn.style.opacity = currentStep === 0 ? '0.45' : '1';
+      nextBtn.style.opacity = currentStep === total - 1 ? '0.45' : '1';
+    }
+
+    function updateUI() {
+      const data = tutorialData[currentFramework];
+      viewerTitle.textContent = data.title;
+      viewerSubtitle.textContent = data.subtitle;
+      updateTabs();
+      renderStepButtons();
+      renderSlides();
+      updateSlidePosition();
+      updateNavButtons();
+    }
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        currentFramework = btn.dataset.framework;
+        currentStep = 0;
+        updateUI();
+      });
+    });
+
+    prevBtn.addEventListener('click', () => {
+      if (currentStep > 0) {
+        currentStep -= 1;
+        updateUI();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      const total = tutorialData[currentFramework].steps.length;
+      if (currentStep < total - 1) {
+        currentStep += 1;
+        updateUI();
+      }
+    });
+
+    /* 시스템 다크/라이트 모드 감지 후 토글 버튼 연동 */
+    let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    themeToggle.textContent = theme === 'dark' ? '☾' : '☀';
+
+    themeToggle.addEventListener('click', () => {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.textContent = theme === 'dark' ? '☾' : '☀';
+      themeToggle.setAttribute(
+        'aria-label',
+        theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'
+      );
+    });
+
+    /* 초기 렌더링 */
+    updateUI();
+  </script>
+</body>
+</html>
